@@ -7,7 +7,7 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 from datetime import datetime
-
+import random
 
 # Load the CSV file using pandas
 class DataMiner:
@@ -16,9 +16,24 @@ class DataMiner:
         tmp2 = pd.read_csv(csv2)
         self.df = pd.merge(tmp1, tmp2, left_on='cyclist', right_on='_url', how='inner')
         self.delete_column("_url_y")
+        self.delete_column("_url_x")
+        self.delete_column("name_y")
+        self.delete_column("is_cobbled")
+        self.delete_column("is_gravel")
+
+        self.df.rename(columns={'name_x': 'Location', 'profile': 'Difficulty', 'date': 'Date',
+                                'cyclist': 'Cyclist name', 'cyclist_team': 'Cyclist Team', 'nationality': 'Nationality',
+                                'points': 'Primary points', 'uci_points': 'Secondary points', 'length': 'Circuit length',
+                                'position': 'Arrival position', 'climb_total': 'Climb length', 'cyclist_age': 'Cyclist age',
+                                'delta': 'Time from first', 'birth_year': 'Birth year', 'weight': 'Weight', 'height': 'Height',
+                                'startlist_quality': 'Participants strength', 'average_temperature': 'Average temperature',
+                                'is_tarmac': 'Is circuit on tarmac'}, inplace=True)
 
     def columns_names(self):
         return self.df.columns
+
+    def sample(self, c):
+        return random.sample(self.df, c)
 
     def delete_column(self, col):
         self.df.drop(columns=[col], inplace=True)
@@ -67,7 +82,7 @@ class DataMiner:
 
     def check_are_alternatives(self, col1, col2):
         alternatives_rows = len(dm.find_rows_with_alternatives(col1, col2))
-        print(f"Columns: {col1}, {col2} {"YES. Columns are alternatives" if alternatives_rows == self.rows_count() else "NO. Columns are not alternatives"}. It's true only for {alternatives_rows}/{dm.rows()} rows")
+        print(f"Columns: {col1}, {col2} {"YES. Columns are alternatives" if alternatives_rows == self.rows_count() else "NO. Columns are not alternatives"}. It's true only for {alternatives_rows}/{dm.rows_count()} rows")
 
     def get_missing_value_rows(self, col):
         tmp = []
@@ -77,7 +92,7 @@ class DataMiner:
         return tmp
 
     def get_categorical_columns(self):
-        return self.df.select_dtypes(include=['object', 'category']).columns.tolist()
+        return self.df.select_dtypes(include=['object', 'category', 'bool']).columns.tolist()
 
     def get_numerical_columns(self):
         return self.df.select_dtypes(include=['number']).columns.tolist()
@@ -114,10 +129,13 @@ print(f"Numerical columns: {numericals_cols}")
 missing_cols = dm.inspect_for_missing()
 print(f"Missing values in columns: {missing_cols}")
 
-dm.hist_plot("nationality")
-dm.scatter_plot("profile", "points")
-dm.delete_column("average_temperature")
+#dm.hist_plot("is_tarmac")
+#dm.hist_plot("is_cobbled")
+#dm.hist_plot("is_gravel")
+print(dm.enumerate_column_range('is_tarmac'))
+#dm.scatter_plot("Difficulty", "Primary points")
+#dm.delete_column("Average temperature")
 
-# dm.check_are_alternatives("points", "uci_points")
+#dm.check_are_alternatives("is_cobbled", "is_gravel")
 
 print("END")
