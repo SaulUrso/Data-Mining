@@ -5,6 +5,7 @@
 
 import pandas as pd
 import seaborn as sns
+import matplotlib.pyplot as plt
 from datetime import datetime
 
 
@@ -81,11 +82,18 @@ class DataMiner:
     def get_numerical_columns(self):
         return self.df.select_dtypes(include=['number']).columns.tolist()
 
-    def hist_plot(self):
-        pass
+    def hist_plot(self, col):
+        sns.displot(self.df,
+                        x=col,
+                        kind="hist",
+                        row_order="desc",
+                        bins=15)
+        plt.xticks(rotation=90, ha='right')
+        plt.show()
 
-    def graph_plot(self):
-        pass
+    def scatter_plot(self, x, y):
+        sns.scatterplot(self.df, x=x, y=y)
+        plt.show()
 
     def reformat_date(self):
         for _, row in self.df.iterrows():
@@ -106,6 +114,8 @@ print(f"Numerical columns: {numericals_cols}")
 missing_cols = dm.inspect_for_missing()
 print(f"Missing values in columns: {missing_cols}")
 
+dm.hist_plot("nationality")
+dm.scatter_plot("profile", "points")
 dm.delete_column("average_temperature")
 
 # dm.check_are_alternatives("points", "uci_points")
